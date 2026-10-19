@@ -1,0 +1,54 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Python bytecode and native extensions
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging and build output
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+wheels/
+*.egg-info/
+*.egg
+MANIFEST
+
+# Test, coverage, and type-check caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.cache/
+.coverage*
+htmlcov/
+
+# Playwright output
+playwright-report/
+test-results/
+blob-report/
+
+# Local databases and runtime files
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.log
+*.pid
+
+# macOS
+.DS_Store

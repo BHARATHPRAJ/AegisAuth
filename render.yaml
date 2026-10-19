@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: aegisauth
+    runtime: python
+    plan: free
+    buildCommand: pip install .
+    startCommand: 'alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips=*'
+    healthCheckPath: /health/ready
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: SESSION_HTTPS_ONLY
+        value: "true"
+      - key: DEMO_LOGIN_ENABLED
+        value: "false"
+      - key: SESSION_SECRET
+        sync: false
+      - key: OIDC_ISSUER_URL
+        sync: false
+      - key: OIDC_METADATA_URL
+        sync: false
+      - key: OIDC_CLIENT_ID
+        sync: false
+      - key: OIDC_CLIENT_SECRET
+        sync: false
+      - key: OIDC_REDIRECT_URI
+        sync: false
+      - key: JWKS_URL
+        sync: false
+      - key: JWT_AUDIENCE
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegisauth-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+
+databases:
+  - name: aegisauth-db
+    databaseName: aegisauth
+    user: aegisauth
+    plan: free
+    postgresMajorVersion: "16"

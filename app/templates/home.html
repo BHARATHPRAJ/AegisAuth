@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome | AegisAuth</title>
+  <link rel="stylesheet" href="/static/site.css?v=10">
+</head>
+<body>
+  <main class="shell">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">A</span><span>AegisAuth</span></div>
+    <section class="welcome-panel" aria-labelledby="page-title">
+      <p class="eyebrow">SIGNED IN</p>
+      <h1 id="page-title">Welcome, {{ user.name }}</h1>
+      <p class="intro">Your AegisAuth session is active.</p>
+      <form action="/auth/logout" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="secondary-button" type="submit">Sign out</button>
+      </form>
+    </section>
+    <footer>Identity-aware access for people and services</footer>
+  </main>
+</body>
+</html>

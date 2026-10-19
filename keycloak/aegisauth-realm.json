@@ -1,0 +1,160 @@
+{
+  "realm": "aegisauth",
+  "enabled": true,
+  "displayName": "AegisAuth Fictional F1 Test Lab",
+  "clients": [
+    {
+      "clientId": "aegisauth-web",
+      "name": "AegisAuth Browser Login",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "local-web-client-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8000/auth/callback",
+        "http://127.0.0.1:8000/auth/callback"
+      ],
+      "webOrigins": ["http://localhost:8000", "http://127.0.0.1:8000"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "aegisauth-machine",
+      "name": "AegisAuth M2M Demo Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "local-machine-client-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "defaultClientScopes": ["profile", "email", "aegisauth-api"]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "aegisauth-api",
+      "description": "Local API audience and read scope",
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "AegisAuth API audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "aegisauth-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "AegisAuth read scope",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "scope",
+            "claim.value": "api:read",
+            "jsonType.label": "String",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "demo",
+      "enabled": true,
+      "email": "demo@aegisauth.local",
+      "emailVerified": true,
+      "firstName": "AegisAuth",
+      "lastName": "Demo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "local-demo-password",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "driver.lewis",
+      "enabled": true,
+      "firstName": "Lewis",
+      "lastName": "Hamilton",
+      "credentials": [{"type": "password", "value": "F1-Lewis-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.max",
+      "enabled": true,
+      "firstName": "Max",
+      "lastName": "Verstappen",
+      "credentials": [{"type": "password", "value": "F1-Max-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.charles",
+      "enabled": true,
+      "firstName": "Charles",
+      "lastName": "Leclerc",
+      "credentials": [{"type": "password", "value": "F1-Charles-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.lando",
+      "enabled": true,
+      "firstName": "Lando",
+      "lastName": "Norris",
+      "credentials": [{"type": "password", "value": "F1-Lando-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.fernando",
+      "enabled": true,
+      "firstName": "Fernando",
+      "lastName": "Alonso",
+      "credentials": [{"type": "password", "value": "F1-Fernando-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.oscar",
+      "enabled": true,
+      "firstName": "Oscar",
+      "lastName": "Piastri",
+      "credentials": [{"type": "password", "value": "F1-Oscar-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.george",
+      "enabled": true,
+      "firstName": "George",
+      "lastName": "Russell",
+      "credentials": [{"type": "password", "value": "F1-George-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.carlos",
+      "enabled": true,
+      "firstName": "Carlos",
+      "lastName": "Sainz",
+      "credentials": [{"type": "password", "value": "F1-Carlos-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.sergio",
+      "enabled": true,
+      "firstName": "Sergio",
+      "lastName": "Perez",
+      "credentials": [{"type": "password", "value": "F1-Sergio-2026!", "temporary": false}]
+    },
+    {
+      "username": "driver.alex",
+      "enabled": true,
+      "firstName": "Alex",
+      "lastName": "Albon",
+      "credentials": [{"type": "password", "value": "F1-Alex-2026!", "temporary": false}]
+    }
+  ]
+}

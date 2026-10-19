@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisAuth</title>
+  <link rel="stylesheet" href="/static/site.css?v=11">
+  <script src="/static/login.js?v=3" defer></script>
+  <script src="/static/portal.js?v=7" defer></script>
+</head>
+<body>
+  <main class="shell portal-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="AegisAuth home">
+        <span class="brand-mark" aria-hidden="true">A</span><span>AegisAuth</span>
+      </a>
+      <nav class="tab-nav" aria-label="Page sections">
+        <a class="tab-link" href="#panel-sign-in">Sign in</a>
+        <a class="tab-link" href="#panel-dashboard">Dashboard</a>
+        <a class="tab-link" href="#panel-simulation">Risk lab</a>
+      </nav>
+    </header>
+
+    <section class="portal-view login-view" id="panel-sign-in" aria-labelledby="sign-in-title">
+      <div class="login-panel" aria-labelledby="sign-in-title">
+        <p class="eyebrow">SECURE ACCESS</p>
+        <h1 id="sign-in-title">Sign in to continue</h1>
+        <p class="intro">{% if local_demo_login %}Open a local demo session to explore AegisAuth.{% else %}Use your organization account to access AegisAuth.{% endif %}</p>
+        {% if local_demo_login %}<p class="demo-note">Development demo only. No identity provider is used.</p>{% endif %}
+        <form action="/auth/login" method="post" id="login-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <div class="honeypot" aria-hidden="true">
+            <label for="website-confirm">Leave this field empty</label>
+            <input id="website-confirm" name="website_confirm" tabindex="-1" autocomplete="off">
+          </div>
+          {% if local_demo_login %}
+          <button class="primary-button" type="submit">Enter local demo</button>
+          {% elif oidc_enabled %}
+          <button class="primary-button" type="submit">Continue with organization</button>
+          {% else %}
+          <button class="primary-button" type="button" disabled>Sign-in provider not configured</button>
+          {% endif %}
+        </form>
+        <p class="fine-print">Protected by AegisAuth</p>
+      </div>
+    </section>
+
+    <section class="portal-view dashboard-view" id="panel-dashboard" aria-labelledby="dashboard-title">
+      <div class="dashboard-heading">
+        <div>
+          <p class="eyebrow">LIVE SECURITY</p>
+          <h1 id="dashboard-title">Bot protection</h1>
+        </div>
+        <span class="live-indicator"><span aria-hidden="true"></span>Live</span>
+      </div>
+      <div class="dashboard-grid">
+      <div class="dashboard-metrics" aria-live="polite">
+        <div class="dashboard-metric">
+          <div>
+            <p class="activity-label">REAL SIGN-IN ATTEMPTS BLOCKED</p>
+            <p class="activity-caption">Rejected by policy; simulation traffic excluded</p>
+          </div>
+          {% if blocked_bot_attempts is none %}
+          <p class="activity-value activity-unavailable" id="blocked-bot-attempts">Unavailable</p>
+          {% else %}
+          <p class="activity-value" id="blocked-bot-attempts">{{ blocked_bot_attempts }}</p>
+          {% endif %}
+        </div>
+        <div class="dashboard-metric simulation-metric">
+          <div>
+            <p class="activity-label">SIMULATED REQUESTS</p>
+            <p class="activity-caption">Lab traffic, separate from real blocks</p>
+          </div>
+          {% if simulated_requests is none %}
+          <p class="activity-value activity-unavailable" id="simulated-requests">Unavailable</p>
+          {% else %}
+          <p class="activity-value" id="simulated-requests">{{ simulated_requests }}</p>
+          {% endif %}
+        </div>
+      </div>
+      <section class="chart-section" aria-labelledby="chart-title">
+        <div class="chart-heading">
+          <div>
+            <h2 id="chart-title">Blocked attempts</h2>
+            <p>Hourly activity · last 24 hours</p>
+          </div>
+          <span class="chart-key"><span aria-hidden="true"></span>Blocked</span>
+        </div>
+        <div class="chart-frame">
+          <svg id="attempts-chart" class="attempts-chart" viewBox="0 0 720 250" role="img" aria-label="Blocked bot attempts by hour over the last 24 hours">
+            <title>Blocked bot attempts by hour over the last 24 hours</title>
+            <g class="chart-grid" id="chart-grid"></g>
+            <path class="chart-area" id="chart-area"></path>
+            <path class="chart-line" id="chart-line"></path>
+            <g class="chart-points" id="chart-points"></g>
+            <g class="chart-labels" id="chart-labels"></g>
+          </svg>
+        </div>
+        <p class="chart-status" id="chart-status" aria-live="polite">Loading activity</p>
+      </section>
+      <section class="chart-section simulation-chart-section" aria-labelledby="simulation-chart-title">
+        <div class="chart-heading">
+          <div>
+            <h2 id="simulation-chart-title">Simulation traffic</h2>
+            <p>Hourly requests fired · last 24 hours</p>
+          </div>
+          <span class="chart-key simulation-chart-key"><span aria-hidden="true"></span>Simulated</span>
+        </div>
+        <div class="chart-frame">
+          <svg id="simulation-chart" class="attempts-chart" viewBox="0 0 720 250" role="img" aria-label="Simulated requests by hour over the last 24 hours">
+            <title>Simulated requests by hour over the last 24 hours</title>
+            <g class="chart-grid" id="simulation-chart-grid"></g>
+            <path class="chart-area simulation-chart-area" id="simulation-chart-area"></path>
+            <path class="chart-line simulation-chart-line" id="simulation-chart-line"></path>
+            <g class="chart-points simulation-chart-points" id="simulation-chart-points"></g>
+            <g class="chart-labels" id="simulation-chart-labels"></g>
+          </svg>
+        </div>
+        <p class="chart-status" id="simulation-chart-status" aria-live="polite">Loading activity</p>
+      </section>
+      </div>
+    </section>
+
+    <section class="portal-view simulation-view" id="panel-simulation" aria-labelledby="simulation-title">
+      <div class="simulation-heading">
+        <div>
+          <p class="eyebrow">INTERACTIVE RISK LAB</p>
+          <h1 id="simulation-title">Test a browser request</h1>
+          <p class="intro">Change signals and see how the policy responds. Simulations never affect live metrics.</p>
+        </div>
+      </div>
+      <div class="scenario-controls" role="group" aria-label="Example scenarios">
+        <button class="scenario-button active" type="button" data-scenario="human">Typical browser</button>
+        <button class="scenario-button" type="button" data-scenario="headless">Headless script</button>
+        <button class="scenario-button" type="button" data-scenario="form-filler">Form filler</button>
+        <button class="scenario-button" type="button" data-scenario="custom">Custom</button>
+      </div>
+      <div class="simulation-grid">
+        <form class="signal-form" id="simulation-form">
+          <label class="signal-toggle"><span><strong>Automation flag</strong><small>Browser reports WebDriver</small></span><input type="checkbox" name="webdriver"></label>
+          <label class="signal-toggle"><span><strong>Fast submission</strong><small>Under 100 ms</small></span><input type="checkbox" name="fast_submit"></label>
+          <label class="signal-toggle"><span><strong>No interaction</strong><small>No pointer or keyboard input</small></span><input type="checkbox" name="no_interaction"></label>
+          <label class="signal-toggle"><span><strong>Empty plugin list</strong><small>Zero browser plugins reported</small></span><input type="checkbox" name="no_plugins"></label>
+          <label class="signal-toggle"><span><strong>Unusual viewport</strong><small>Outside typical screen bounds</small></span><input type="checkbox" name="unusual_viewport"></label>
+          <label class="signal-toggle"><span><strong>Honeypot field filled</strong><small>Hidden trap field contains a value</small></span><input type="checkbox" name="honeypot_filled"></label>
+          <button class="primary-button simulate-button" type="submit">Evaluate scenario</button>
+        </form>
+        <section class="simulation-result" aria-live="polite" aria-labelledby="result-heading">
+          <div class="result-topline"><p class="activity-label">RISK SCORE</p><p class="risk-number" id="simulation-score">0<span>/100</span></p></div>
+          <div class="risk-track" role="progressbar" aria-label="Browser risk score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="risk-fill"></span></div>
+          <p class="risk-level" id="simulation-level">Low risk</p>
+          <h2 id="result-heading">Allow this browser request</h2>
+          <ul class="signal-reasons" id="simulation-reasons"><li>No configured risk signals were detected.</li></ul>
+          <p class="simulation-disclaimer">A score is a heuristic, not proof of identity. Authorized machine clients use a separate token-based flow.</p>
+        </section>
+      </div>
+      <section class="trace-panel" aria-labelledby="request-trace-title">
+        <div class="trace-heading">
+          <div>
+            <h2 id="request-trace-title">Request trace</h2>
+            <p>Client events and backend processing steps</p>
+          </div>
+          <span class="trace-status" id="trace-status" data-state="idle">Idle</span>
+        </div>
+        <ol class="trace-output" id="request-trace" role="log" aria-live="polite" aria-relevant="additions">
+          <li class="trace-entry" data-status="info"><time>--:--:--</time><span class="trace-marker" aria-hidden="true">›</span><span>Awaiting a simulation request.</span></li>
+        </ol>
+      </section>
+      <section class="request-flow" aria-labelledby="request-flow-title">
+        <div class="flow-heading">
+          <p class="eyebrow">REQUEST LIFECYCLE</p>
+          <h2 id="request-flow-title">How a request is evaluated</h2>
+        </div>
+        <div class="flow-lanes">
+          <article class="flow-lane" aria-labelledby="browser-flow-title">
+            <h3 id="browser-flow-title">Browser sign-in</h3>
+            <ol class="flow-steps">
+              <li><span class="flow-index">1</span><div><strong>Submit sign-in form</strong><small>Collect browser telemetry</small></div></li>
+              <li><span class="flow-index">2</span><div><strong>Check honeypot</strong><small>Filled field is rejected immediately</small></div></li>
+              <li><span class="flow-index">3</span><div><strong>Score browser signals</strong><small>Combine signals; do not treat one as proof</small></div></li>
+            </ol>
+            <div class="flow-outcomes">
+              <div class="flow-outcome blocked"><span>High risk or trap filled</span><strong>Block · 403 · save event</strong></div>
+              <div class="flow-outcome"><span>Low risk</span><strong>Continue to OIDC</strong></div>
+            </div>
+          </article>
+          <article class="flow-lane" aria-labelledby="machine-flow-title">
+            <h3 id="machine-flow-title">Machine-to-machine API</h3>
+            <ol class="flow-steps">
+              <li><span class="flow-index">1</span><div><strong>Send bearer token</strong><small>Issued through client credentials</small></div></li>
+              <li><span class="flow-index">2</span><div><strong>Verify JWT with JWKS</strong><small>Check signature, issuer, audience, and expiry</small></div></li>
+              <li><span class="flow-index">3</span><div><strong>Check required scope</strong><small>Apply client identity and rate policy</small></div></li>
+            </ol>
+            <div class="flow-outcomes">
+              <div class="flow-outcome"><span>Valid token and scope</span><strong>Allow API request</strong></div>
+              <div class="flow-outcome blocked"><span>Invalid or insufficient</span><strong>Reject · 401 / 403</strong></div>
+            </div>
+          </article>
+        </div>
+      </section>
+      <section class="batch-panel" aria-labelledby="batch-title">
+        <div class="batch-heading">
+          <div>
+            <h2 id="batch-title">Fire a request batch</h2>
+            <p>Send a randomized group of requests and inspect each decision.</p>
+          </div>
+        </div>
+        <form class="batch-controls" id="batch-form">
+          <label>Profile
+            <select name="profile">
+              <option value="random">Random mix</option>
+              <option value="headless">Headless script</option>
+              <option value="form_filler">Form filler</option>
+              <option value="human">Typical browser</option>
+              <option value="custom">Current custom signals</option>
+            </select>
+          </label>
+          <label>Requests
+            <input name="count" type="number" min="3" max="25" value="10" required>
+          </label>
+          <button class="primary-button batch-button" type="submit">Run batch</button>
+        </form>
+        <p class="batch-status" id="batch-status" aria-live="polite">No batch run yet</p>
+        <ul class="batch-results" id="batch-results" aria-live="polite"></ul>
+      </section>
+    </section>
+    <footer>Identity-aware access for people and services</footer>
+  </main>
+  <script id="initial-history" type="application/json">{{ history | tojson }}</script>
+  <script id="initial-simulation-history" type="application/json">{{ simulation_history | tojson }}</script>
+</body>
+</html>
